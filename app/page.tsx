@@ -11,6 +11,7 @@ import { baseSepolia } from "viem/chains";
 import { useReadContract } from "wagmi";
 import { proofifiAbi } from "@/lib/proofifiAbi";
 import { createEnsName, getData } from "@/lib/namestone";
+import Image from 'next/image'
 
 export default function Home() {
   const { ready, authenticated, logout, user } = usePrivy();
@@ -62,7 +63,11 @@ export default function Home() {
         data: encodeFunctionData({
           abi: proofifiAbi,
           functionName: "safeMint",
-          args: [recipientNftAddress as `0x${string}`, nftTitle, nftDescription],
+          args: [
+            recipientNftAddress as `0x${string}`,
+            nftTitle,
+            nftDescription,
+          ],
         }),
       });
 
@@ -136,7 +141,7 @@ export default function Home() {
   return (
     <div className="min-h-screen min-w-screen">
       <div className="grid grid-cols-1 lg:grid-cols-4 h-screen text-black">
-        <div className="col-span-2 bg-gray-50 p-12 h-full flex flex-col lg:flex-row items-center justify-center space-y-2">
+        <div className=" col-span-2 bg-gray-50 p-12 h-full flex flex-col lg:flex-row items-center justify-center space-y-2">
           <div className="flex flex-col justify-evenly h-full">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2"></div>
@@ -166,6 +171,12 @@ export default function Home() {
                   Logout
                 </Button>
               )}
+              <Image
+              src="/images/logo_proofifi.png"
+              width={300}
+              height={300}
+              alt="Picture of the author"
+            />
             </div>
           </div>
         </div>
