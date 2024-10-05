@@ -26,6 +26,8 @@ export default function Home() {
   const [isLoadingMintNft, setIsLoadingMintNft] = useState(false);
   const [errorMessageMintNft, setErrorMessageMintNft] = useState("");
   const [recipientNftAddress, setRecipientNftAddress] = useState("");
+  const [nftTitle, setNftTitle] = useState("");
+  const [nftDescription, setNftDescription] = useState("");
 
   const [ensName, setEnsName] = useState("");
   const [errorEns, setErrorEns] = useState("");
@@ -48,6 +50,10 @@ export default function Home() {
 
     setErrorMessageMintNft("");
 
+    console.log(nftTitle);
+    console.log(nftDescription);
+    console.log(recipientNftAddress);
+
     try {
       const tx = await client.sendTransaction({
         chain: baseSepolia,
@@ -56,7 +62,7 @@ export default function Home() {
         data: encodeFunctionData({
           abi: proofifiAbi,
           functionName: "safeMint",
-          args: [recipientNftAddress as `0x${string}`],
+          args: [recipientNftAddress as `0x${string}`, nftTitle, nftDescription],
         }),
       });
 
@@ -237,17 +243,21 @@ export default function Home() {
                     label="ENS name"
                   />
                   {errorEns && (
-                  <div className="text-red-500 text-xs text-center mt-1">
-                    {errorEns}
-                  </div>
-                )}
-                <Input
+                    <div className="text-red-500 text-xs text-center mt-1">
+                      {errorEns}
+                    </div>
+                  )}
+                  <Input
                     size="sm"
+                    value={nftTitle}
+                    onChange={(e) => setNftTitle(e.target.value)}
                     placeholder="Enter label title"
                     label="Label title"
                   />
                   <Input
                     size="sm"
+                    value={nftDescription}
+                    onChange={(e) => setNftDescription(e.target.value)}
                     placeholder="Enter label description"
                     label="Label description"
                   />

@@ -8,9 +8,24 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 contract Proofifi is ERC721, ERC721Enumerable {
     uint256 private _nextTokenId;
     
+    struct TokenData {
+        string title;
+        string description;
+    }
+
+    mapping(uint256 => TokenData) public _tokenData;
+
     constructor()
         ERC721("Proofifi", "PFF")
     {}
+
+    function safeMint(address to, string memory title, string memory description) public {
+        uint256 tokenId = _nextTokenId++;
+        _safeMint(to, tokenId);
+
+        // Store the title and description in the TokenData struct
+        _tokenData[tokenId] = TokenData({title: title, description: description});
+    }
 
     function safeMint(address to) public {
         uint256 tokenId = _nextTokenId++;
