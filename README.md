@@ -28,6 +28,8 @@ Create a `.env.local` file in the root directory and add your Privy App ID:
 NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id_here
 ```
 
+Deploy the smart contract `Proofifi.sol` to be able to mint the NFTs.
+
 4. Run the development server:
 
 ```bash
