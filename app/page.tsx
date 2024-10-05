@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  BASE_SEPOLIA_PROOFIFI_ERC721_ADDRESS,
-  BASE_SEPOLIA_USDC_ADDRESS,
-  BASE_USDC_ADDRESS,
-} from "@/lib/constants";
+import { BASE_SEPOLIA_PROOFIFI_ERC721_ADDRESS } from "@/lib/constants";
 import { Button, Image, Link, Input, Divider } from "@nextui-org/react";
 import { useLogin, usePrivy } from "@privy-io/react-auth";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
@@ -14,6 +10,7 @@ import { encodeFunctionData, erc20Abi, parseUnits } from "viem";
 import { base, baseSepolia } from "viem/chains";
 import { useChainId, useSwitchChain, useBalance, useReadContract } from "wagmi";
 import { proofifiAbi } from "@/lib/proofifiAbi";
+import { getData } from "@/lib/namestone";
 
 export default function Home() {
   const { ready, authenticated, logout, user } = usePrivy();
@@ -34,6 +31,14 @@ export default function Home() {
   const { client } = useSmartWallets();
   const chainId = useChainId();
 
+  const { data: totalSupply } = useReadContract({
+    abi: proofifiAbi,
+    address: BASE_SEPOLIA_PROOFIFI_ERC721_ADDRESS,
+    functionName: "totalSupply",
+  });
+
+  console.log("NFT ID " + totalSupply);
+
   const mintNftTransaction = async () => {
     setIsLoadingMintNft(true);
     if (!client) {
@@ -43,11 +48,6 @@ export default function Home() {
 
     setErrorMessageMintNft("");
 
-    /* if (smartUsdcBalance && amount > smartUsdcBalance) {
-      setErrorMessage("Insufficient USDC balance");
-      return;
-    } */
-
     try {
       const tx = await client.sendTransaction({
         chain: baseSepolia,
@@ -56,10 +56,12 @@ export default function Home() {
         data: encodeFunctionData({
           abi: proofifiAbi,
           functionName: "safeMint",
-          args: [recipientNftAddress as `0x${string}`],
+          args: [
+            recipientNftAddress as `0x${string}`
+          ],
         }),
-        account: client.account,
       });
+
       console.log("tx", tx);
     } catch (error) {
       console.error("Transaction failed:", error);
@@ -77,11 +79,22 @@ export default function Home() {
     []
   );
 
+  useEffect(() => {
+    if (user?.wallet?.address) {
+      setEmbeddedWalletAddress(user.wallet.address);
+    }
+    if (client?.account.address) {
+      setSmartWalletAddress(client.account.address);
+    }
+  }, [user, client]);
+
   const handleLogout = () => {
     // Reset all input fields
     setMessage("");
 
     setRecipientNftAddress("");
+    /* setNftTitle("");
+    setNftDescription(""); */
     setErrorMessageMintNft("");
     // Call the Privy logout function
     logout();
@@ -213,7 +226,9 @@ export default function Home() {
                   startContent={<Send className="w-4 h-4" />}
                   isLoading={isLoadingMintNft}
                   className="w-full"
-                  isDisabled={!recipientNftAddress}
+                  isDisabled={
+                    !recipientNftAddress /* || !nftTitle || !nftDescription */
+                  }
                 >
                   Create label
                 </Button>
@@ -222,6 +237,10 @@ export default function Home() {
                     {errorMessageMintNft}
                   </div>
                 )}
+                <div className="text-xs mt-1">
+                  <span className="font-semibold">Labels created:  {totalSupply?.toString()}</span>
+                 
+                </div>
               </div>
             </div>
           )}

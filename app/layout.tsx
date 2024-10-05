@@ -8,8 +8,8 @@ const raleway = Raleway({
 });
 
 export const metadata: Metadata = {
-  title: "Privy AA Starter",
-  description: "Next.js starter with Privy Embedded Wallets and Smart Wallets",
+  title: "Proofifi",
+  description: "Create NFT labels for your second hand items.",
 };
 
 export default function RootLayout({
