@@ -1,16 +1,16 @@
 "use client";
 
 import { BASE_SEPOLIA_PROOFIFI_ERC721_ADDRESS } from "@/lib/constants";
-import { Button, Image, Link, Input, Divider } from "@nextui-org/react";
+import { Button, Input, Divider } from "@nextui-org/react";
 import { useLogin, usePrivy } from "@privy-io/react-auth";
 import { useSmartWallets } from "@privy-io/react-auth/smart-wallets";
 import { CopyIcon, CheckIcon, Send, LogOut } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
-import { encodeFunctionData, erc20Abi, parseUnits } from "viem";
-import { base, baseSepolia } from "viem/chains";
-import { useChainId, useSwitchChain, useBalance, useReadContract } from "wagmi";
+import { encodeFunctionData } from "viem";
+import { baseSepolia } from "viem/chains";
+import { useReadContract } from "wagmi";
 import { proofifiAbi } from "@/lib/proofifiAbi";
-import { getData } from "@/lib/namestone";
+import { createEnsName, getData } from "@/lib/namestone";
 
 export default function Home() {
   const { ready, authenticated, logout, user } = usePrivy();
@@ -27,17 +27,17 @@ export default function Home() {
   const [errorMessageMintNft, setErrorMessageMintNft] = useState("");
   const [recipientNftAddress, setRecipientNftAddress] = useState("");
 
+  const [ensName, setEnsName] = useState("");
+  const [errorEns, setErrorEns] = useState("");
+
   const { login } = useLogin();
   const { client } = useSmartWallets();
-  const chainId = useChainId();
 
   const { data: totalSupply } = useReadContract({
     abi: proofifiAbi,
     address: BASE_SEPOLIA_PROOFIFI_ERC721_ADDRESS,
     functionName: "totalSupply",
   });
-
-  console.log("NFT ID " + totalSupply);
 
   const mintNftTransaction = async () => {
     setIsLoadingMintNft(true);
@@ -56,11 +56,13 @@ export default function Home() {
         data: encodeFunctionData({
           abi: proofifiAbi,
           functionName: "safeMint",
-          args: [
-            recipientNftAddress as `0x${string}`
-          ],
+          args: [recipientNftAddress as `0x${string}`],
         }),
       });
+
+      await createEnsName(ensName, smartWalletAddress || "");
+
+      console.log(await getData());
 
       console.log("tx", tx);
     } catch (error) {
@@ -108,6 +110,24 @@ export default function Home() {
       setSmartWalletAddress(client.account.address);
     }
   }, [user, client]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setErrorEns("");
+    setEnsName(value);
+
+    const validateENS = (name: string): boolean => {
+      const ensRegex = /^[a-z0-9]+$/i;
+      return ensRegex.test(name.toLowerCase());
+    };
+
+    // Validate ENS name
+    if (!validateENS(value)) {
+      setErrorEns("Invalid ENS name. It must be alphanumeric.");
+    } else {
+      setErrorEns("");
+    }
+  };
 
   return (
     <div className="min-h-screen min-w-screen">
@@ -213,6 +233,28 @@ export default function Home() {
                   <div className="text-sm font-semibold">Create label</div>
                   <Input
                     size="sm"
+                    value={ensName}
+                    onChange={(e) => handleChange(e)}
+                    placeholder="Enter ENS name"
+                    label="ENS name"
+                  />
+                  {errorEns && (
+                  <div className="text-red-500 text-xs text-center mt-1">
+                    {errorEns}
+                  </div>
+                )}
+                <Input
+                    size="sm"
+                    placeholder="Enter label title"
+                    label="Label title"
+                  />
+                  <Input
+                    size="sm"
+                    placeholder="Enter label description"
+                    label="Label description"
+                  />
+                  <Input
+                    size="sm"
                     value={recipientNftAddress}
                     onChange={(e) => setRecipientNftAddress(e.target.value)}
                     placeholder="Enter recipient address"
@@ -226,9 +268,7 @@ export default function Home() {
                   startContent={<Send className="w-4 h-4" />}
                   isLoading={isLoadingMintNft}
                   className="w-full"
-                  isDisabled={
-                    !recipientNftAddress /* || !nftTitle || !nftDescription */
-                  }
+                  isDisabled={!recipientNftAddress || !ensName}
                 >
                   Create label
                 </Button>
@@ -238,8 +278,9 @@ export default function Home() {
                   </div>
                 )}
                 <div className="text-xs mt-1">
-                  <span className="font-semibold">Labels created:  {totalSupply?.toString()}</span>
-                 
+                  <span className="font-semibold">
+                    Labels created: {totalSupply?.toString()}
+                  </span>
                 </div>
               </div>
             </div>
