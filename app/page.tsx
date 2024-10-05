@@ -29,6 +29,7 @@ export default function Home() {
   const [recipientNftAddress, setRecipientNftAddress] = useState("");
   const [nftTitle, setNftTitle] = useState("");
   const [nftDescription, setNftDescription] = useState("");
+  const [nftTx, setNftTx ] = useState("");
 
   const [ensName, setEnsName] = useState("");
   const [errorEns, setErrorEns] = useState("");
@@ -51,10 +52,6 @@ export default function Home() {
 
     setErrorMessageMintNft("");
 
-    console.log(nftTitle);
-    console.log(nftDescription);
-    console.log(recipientNftAddress);
-
     try {
       const tx = await client.sendTransaction({
         chain: baseSepolia,
@@ -74,6 +71,7 @@ export default function Home() {
       await createEnsName(ensName, smartWalletAddress || "");
 
       console.log("tx", tx);
+      setNftTx(tx);
     } catch (error) {
       console.error("Transaction failed:", error);
       setErrorMessageMintNft("Transaction failed. Please try again.");
@@ -296,6 +294,33 @@ export default function Home() {
                     {errorMessageMintNft}
                   </div>
                 )}
+                {nftTx &&<div className="flex flex-col">
+                      <div className="flex items-center">
+                        <Input
+                          size="sm"
+                          value={nftTx}
+                          label="NFT Minting Transaction"
+                          isReadOnly
+                          className="flex-grow"
+                          endContent={
+                            <button
+                              onClick={() =>
+                                copyToClipboard(
+                                  nftTx || "",
+                                  "nftTx"
+                                )
+                              }
+                            >
+                              {copiedWallet === "nftTx" ? (
+                                <CheckIcon className="w-4 h-4 text-green-500" />
+                              ) : (
+                                <CopyIcon className="w-4 h-4" />
+                              )}
+                            </button>
+                          }
+                        />
+                      </div>
+                    </div> }
                 <div className="text-xs mt-1">
                   <span className="font-semibold">
                     Labels created: {totalSupply?.toString()}
