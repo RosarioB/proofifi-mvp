@@ -62,8 +62,6 @@ export default function Home() {
 
       await createEnsName(ensName, smartWalletAddress || "");
 
-      console.log(await getData());
-
       console.log("tx", tx);
     } catch (error) {
       console.error("Transaction failed:", error);
