@@ -10,7 +10,7 @@ import { encodeFunctionData } from "viem";
 import { baseSepolia } from "viem/chains";
 import { useReadContract } from "wagmi";
 import { proofifiAbi } from "@/lib/proofifiAbi";
-import { createEnsName, getData } from "@/lib/namestone";
+import { claimEnsName, createEnsName, getData } from "@/lib/namestone";
 import Image from 'next/image'
 
 export default function Home() {
@@ -68,7 +68,8 @@ export default function Home() {
         }),
       });
 
-      await createEnsName(ensName, smartWalletAddress || "");
+      //await createEnsName(ensName, smartWalletAddress || "");
+      await claimEnsName(ensName, smartWalletAddress || "");
 
       console.log("tx", tx);
       setNftTx(tx);
