@@ -1,4 +1,5 @@
 # proofifi-mvp
+This is the source code of this [Youtube video](https://youtu.be/rVh7Vz-ZUN8). 
 
 This project is a Next.js starter application that demonstrates the integration of Privy Smart Wallets for signing and executing transactions on the Base and Base Sepolia networks.
 
